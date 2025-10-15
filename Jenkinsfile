@@ -24,8 +24,8 @@ pipeline {
                     sh 'pwd'
                     sh 'ls -al'
                     // sh 'mvn package'
-                    sh 'ls -al'
-                    sh 'ls -al ./target'
+                    // sh 'ls -al'
+                    // sh 'ls -al ./target'
                 }
             }
         }
