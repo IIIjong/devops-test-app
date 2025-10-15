@@ -23,10 +23,16 @@ pipeline {
                 container('maven') {
                     sh 'pwd'
                     sh 'ls -al'
-                    sh 'mvn package'
+                    // sh 'mvn package'
                     sh 'ls -al'
                     sh 'ls -al ./target'
                 }
+            }
+        }
+
+        stage('Docker Image Build & Push') {
+            steps {
+                sh 'docker -v'
             }
         }
     }
