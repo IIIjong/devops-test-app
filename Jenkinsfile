@@ -20,7 +20,7 @@ pipeline {
     stages {
         stage('checkout') {
             steps {
-                containers('maven') {
+                container('maven') {
                     sh 'pwd'
                     sh 'ls -al'
                     sh 'mvn clean'
