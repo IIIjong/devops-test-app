@@ -17,25 +17,30 @@ pipeline {
                 image: docker:28.5.1-cli-alpine3.22
                 command:
                 - cat
-                tty: true                
+                tty: true
                 volumeMounts:
                 - mountPath: "/var/run/docker.sock"
                   name: docker-socket
               volumes:
               - name: docker-socket
                 hostPath:
-                  path: "/var/run/docker.sock"                
+                  path: "/var/run/docker.sock"
             '''
-        }        
+        }
+    }
+
+    environment {
+        DOCKER_IMAGE_NAME = 'iiijong/department-service'
     }
 
     stages {
-        stage('checkout') {
+        stage('Maven Build') {
             steps {
                 container('maven') {
                     sh 'pwd'
                     sh 'ls -al'
-                    // sh 'mvn package'
+                    sh 'mvn -v'
+                    // sh 'mvn clean'
                     sh 'mvn package -DskipTests'
                     sh 'ls -al'
                     sh 'ls -al ./target'
@@ -47,14 +52,16 @@ pipeline {
             steps {
                 container('docker') {
                     script {
-                        def buildNumber ="${env.BUILD_NUMBER}"
-                        withEnv(["DOCKER_IMAGE_VERSION=${buildNumber}"])
+                        def buildNumber = "${env.BUILD_NUMBER}"
+
+                        // 파이프라인 단계에서 환경 변수를 설정하는 역할을 한다.
+                        withEnv(["DOCKER_IMAGE_VERSION=${buildNumber}"]) {
+                            sh 'docker -v'
+                            sh 'echo $DOCKER_IMAGE_NAME:$DOCKER_IMAGE_VERSION'
+                            sh 'docker build --no-cache -t $DOCKER_IMAGE_NAME:$DOCKER_IMAGE_VERSION ./'
+                            sh 'docker image inspect $DOCKER_IMAGE_NAME:$DOCKER_IMAGE_VERSION'
+                        }
                     }
-                    sh 'docker -v'
-                    sh 'echo $DOCKER_IMAGE_NAME'
-                    sh 'echo $DOCKER_IMAGE_VERSION'
-                    // sh 'docker build --no-cache -t iiijong/department-service:5.0 ./'
-                    // sh 'docker images iiijong/department-service'
                 }
             }
         }
