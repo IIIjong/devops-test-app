@@ -1,2 +1,3 @@
 # devops-test-app
-test
+* test
+* pipeline test
