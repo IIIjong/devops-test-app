@@ -46,6 +46,7 @@ pipeline {
             steps {
                 container('docker') {
                     sh 'docker -v'
+                    sh 'docker images iiijong/department-service'
                 }
             }
         }
