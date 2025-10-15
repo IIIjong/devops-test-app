@@ -46,9 +46,15 @@ pipeline {
         stage('Docker Image Build & Push') {
             steps {
                 container('docker') {
+                    script {
+                        def buildNumber ="${env.BUILD_NUMBER}"
+                        withEnv(["DOCKER_IMAGE_VERSION=${buildNumber}"])
+                    }
                     sh 'docker -v'
-                    sh 'docker build --no-cache -t iiijong/department-service:5.0 ./'
-                    sh 'docker images iiijong/department-service'
+                    sh 'echo $DOCKER_IMAGE_NAME'
+                    sh 'echo $DOCKER_IMAGE_VERSION'
+                    // sh 'docker build --no-cache -t iiijong/department-service:5.0 ./'
+                    // sh 'docker images iiijong/department-service'
                 }
             }
         }
