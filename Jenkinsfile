@@ -23,7 +23,9 @@ pipeline {
                 container('maven') {
                     sh 'pwd'
                     sh 'ls -al'
-                    sh 'mvn clean'
+                    sh 'mvn package'
+                    sh 'ls -al'
+                    sh 'ls -al ./target'
                 }
             }
         }
