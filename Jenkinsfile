@@ -32,6 +32,7 @@ pipeline {
     environment {
         DOCKER_IMAGE_NAME = 'iiijong/department-service'
         DOCKER_CREDENTIALS_ID = 'dockerhub-access'
+        DISCORD_WEBHOOK_CREDENTIALS_ID = 'discord-webhook'
     }
 
     stages {
@@ -73,5 +74,57 @@ pipeline {
                 }
             }
         }
+        
     }
+    post {
+        always {
+            withCredentials([string(
+                credentialsId: DISCORD_WEBHOOK_CREDENTIALS_ID,
+                variable: 'DISCORD_WEBHOOK_URL'
+            )]) {
+                discordSend description: """
+                제목 : ${currentBuild.displayName} 빌드
+                결과 : ${currentBuild.result}
+                실행 시간 : ${currentBuild.duration / 1000}s
+                """,
+                result: currentBuild.currentResult,
+                title: "${env.JOB_NAME} : ${currentBuild.displayName}", 
+                webhookURL: "${DISCORD_WEBHOOK_URL}"
+            }
+        }
+
+        // success {
+        //     // string()
+        //     //   - 자격 증명 중 시크릿 텍스트를 가져온다.
+        //     withCredentials([string(
+        //         credentialsId: DISCORD_WEBHOOK_CREDENTIALS_ID,
+        //         variable: 'DISCORD_WEBHOOK_URL'
+        //     )]) {
+        //         discordSend description: """
+        //         제목 : ${currentBuild.displayName} 성공
+        //         결과 : ${currentBuild.result}
+        //         실행 시간 : ${currentBuild.duration / 1000}s
+        //         """,
+        //         result: currentBuild.currentResult,
+        //         title: "${env.JOB_NAME} : ${currentBuild.displayName}", 
+        //         webhookURL: "${DISCORD_WEBHOOK_URL}"
+        //     }
+        // }
+
+        // failure {
+        //     withCredentials([string(
+        //         credentialsId: DISCORD_WEBHOOK_CREDENTIALS_ID,
+        //         variable: 'DISCORD_WEBHOOK_URL'
+        //     )]) {
+        //         discordSend description: """
+        //         제목 : ${currentBuild.displayName} 실패
+        //         결과 : ${currentBuild.result}
+        //         실행 시간 : ${currentBuild.duration / 1000}s
+        //         """,
+        //         result: currentBuild.currentResult,
+        //         title: "${env.JOB_NAME} : ${currentBuild.displayName}", 
+        //         webhookURL: "${DISCORD_WEBHOOK_URL}"
+        //     }
+        // }
+    }    
 }
