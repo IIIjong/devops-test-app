@@ -36,6 +36,17 @@ pipeline {
     }
 
     stages {
+        stage('SonarQube Analysis') {
+            steps {
+                container('maven') {
+                    withSonarQubeEnv('sonarqube-server') {
+                        sh """mvn verify sonar:sonar \
+                            -Dsonar.projectKey='departmentService' \
+                            -Dsonar.projectName='departmentService'"""
+                    }
+                }
+            }
+        }
         stage('Maven Build') {
             steps {
                 container('maven') {
