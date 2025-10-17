@@ -49,6 +49,71 @@ pipeline {
             }
 
         }
+        stage('Docker Login') {
+            def buildNumber = "${env.BUILD_NUMBER}"
+                                withCredentials([usernamePassword(
+                                    credentialsId: DOCKER_CREDENTIALS_ID,
+                                    usernameVariable: 'DOCKER_USERNAME',
+                                    passwordVariable: 'DOCKER_PASSWORD'
+                                )]) {
+                                    sh 'echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin'
+                                }
+        }
+        stage("APP Image Build & Push") {
+            when {
+                expression {
+                    return env.SHOULD_BUILD_APP == "true"
+                }
+                steps {
+                    container('docker'){
+                        dir('university-vue') {
+                            script {
+                                // 파이프라인 단계에서 환경 변수를 설정하는 역할을 한다.
+                                withEnv(["DOCKER_IMAGE_VERSION=${buildNumber}"]) {
+                                    sh 'docker -v'
+                                    sh 'echo $APP_IMAGE_NAME:$DOCKER_IMAGE_VERSION'
+                                    sh 'docker build --no-cache -t $APP_IMAGE_NAME:$DOCKER_IMAGE_VERSION ./'
+                                    sh 'docker image inspect $APP_IMAGE_NAME:$DOCKER_IMAGE_VERSION'
+                                    sh 'docker push $APP_IMAGE_NAME:$DOCKER_IMAGE_VERSION'
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        stage ("API IMAGE BUILD & Push") {
+            when {
+                expression {
+                    return env.SHOULD_BUILD_API == "true"
+                }
+
+            steps {
+                container('docker') {
+                    dir('department-api') {
+                        script {
+                            def buildNumber = "${env.BUILD_NUMBER}"
+                            withCredentials([usernamePassword(
+                                credentialsId: DOCKER_CREDENTIALS_ID,
+                                usernameVariable: 'DOCKER_USERNAME',
+                                passwordVariable: 'DOCKER_PASSWORD'
+                            )]) {
+                                sh 'echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin'
+                            }
+                            // 파이프라인 단계에서 환경 변수를 설정하는 역할을 한다.
+                            withEnv(["docker_IMAGE_VERSION=${buildNumber}"]) {
+                                sh 'docker -v'
+                                sh 'echo $API_IMAGE_NAME:$DOCKER_IMAGE_VERSION'
+                                sh 'docker build --no-cache -t $API_IMAGE_NAME:$DOCKER_IMAGE_VERSION ./'
+                                sh 'docker image inspect $API_IMAGE_NAME:$DOCKER_IMAGE_VERSION'
+                                sh 'docker push $API_IMAGE_NAME:$DOCKER_IMAGE_VERSION'
+                            }
+                        }
+                    }
+                }
+            }
+        }
         // stage('Docker Image Build & Push') {
         //     steps {
         //         container('docker') {
