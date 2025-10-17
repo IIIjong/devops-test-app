@@ -17,7 +17,7 @@ import java.util.List;
         info = @Info(
                 title = "Department Service API Test",
                 description = "학과 관련 API 테스트 문서",
-                version = "v6.1.1"
+                version = "v4.2.1"
         )
 )
 public class SwaggerConfig {
