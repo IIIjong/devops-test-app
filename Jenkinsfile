@@ -47,44 +47,44 @@ pipeline {
         //         }
         //     }
         // }
-        // stage('Maven Build') {
-        //     steps {
-        //         container('maven') {
-        //             sh 'pwd'
-        //             sh 'ls -al'
-        //             sh 'mvn -v'
-        //             // sh 'mvn clean'
-        //             sh 'mvn package -DskipTests'
-        //             sh 'ls -al'
-        //             sh 'ls -al ./target'
-        //         }
-        //     }
-        // }
+        stage('Maven Build') {
+            steps {
+                container('maven') {
+                    sh 'pwd'
+                    sh 'ls -al'
+                    sh 'mvn -v'
+                    // sh 'mvn clean'
+                    sh 'mvn package -DskipTests'
+                    sh 'ls -al'
+                    sh 'ls -al ./target'
+                }
+            }
+        }
 
-        // stage('Docker Image Build & Push') {
-        //     steps {
-        //         container('docker') {
-        //             script {
-        //                 def buildNumber = "${env.BUILD_NUMBER}"
-        //                 withCredentials([usernamePassword(
-        //                     credentialsId: DOCKER_CREDENTIALS_ID,
-        //                     usernameVariable: 'DOCKER_USERNAME',
-        //                     passwordVariable: 'DOCKER_PASSWORD'
-        //                 )]) {
-        //                     sh 'echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin'
-        //                 }
-        //                 // 파이프라인 단계에서 환경 변수를 설정하는 역할을 한다.
-        //                 withEnv(["DOCKER_IMAGE_VERSION=${buildNumber}"]) {
-        //                     sh 'docker -v'
-        //                     sh 'echo $DOCKER_IMAGE_NAME:$DOCKER_IMAGE_VERSION'
-        //                     sh 'docker build --no-cache -t $DOCKER_IMAGE_NAME:$DOCKER_IMAGE_VERSION ./'
-        //                     sh 'docker image inspect $DOCKER_IMAGE_NAME:$DOCKER_IMAGE_VERSION'
-        //                     sh 'docker push $DOCKER_IMAGE_NAME:$DOCKER_IMAGE_VERSION'
-        //                 }
-        //             }
-        //         }
-        //     }
-        // }
+        stage('Docker Image Build & Push') {
+            steps {
+                container('docker') {
+                    script {
+                        def buildNumber = "${env.BUILD_NUMBER}"
+                        withCredentials([usernamePassword(
+                            credentialsId: DOCKER_CREDENTIALS_ID,
+                            usernameVariable: 'DOCKER_USERNAME',
+                            passwordVariable: 'DOCKER_PASSWORD'
+                        )]) {
+                            sh 'echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin'
+                        }
+                        // 파이프라인 단계에서 환경 변수를 설정하는 역할을 한다.
+                        withEnv(["DOCKER_IMAGE_VERSION=${buildNumber}"]) {
+                            sh 'docker -v'
+                            sh 'echo $DOCKER_IMAGE_NAME:$DOCKER_IMAGE_VERSION'
+                            sh 'docker build --no-cache -t $DOCKER_IMAGE_NAME:$DOCKER_IMAGE_VERSION ./'
+                            sh 'docker image inspect $DOCKER_IMAGE_NAME:$DOCKER_IMAGE_VERSION'
+                            sh 'docker push $DOCKER_IMAGE_NAME:$DOCKER_IMAGE_VERSION'
+                        }
+                    }
+                }
+            }
+        }
         stage('Trigger university-k8s-manifests') {
             steps {
                 script {
