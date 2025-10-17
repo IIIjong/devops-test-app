@@ -25,8 +25,8 @@ pipeline {
     }
 
     environment {
-        APP_IMAGE_NAME = 'ismoon/unversity-vue'
-        API_IMAGE_NAME = 'ismoon/department-service'
+        APP_IMAGE_NAME = 'iiijong/unversity-vue'
+        API_IMAGE_NAME = 'iiijong/department-service'
         DOCKER_CREDENTIALS_ID = 'dockerhub-access'
         DISCORD_WEBHOOK_CREDENTIALS_ID = 'discord-webhook'
     }
